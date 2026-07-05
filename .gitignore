@@ -6,7 +6,7 @@ backend/.env
 
 database/
 *.sql
-*csv
+*.csv
 
 *.pdf
 *.docx
