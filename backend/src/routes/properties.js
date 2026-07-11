@@ -109,6 +109,13 @@ function getFilters(query){
     return { whereClause, queryValues };
 }
 
+function validatePropertyId(id) {
+    const hasOnlySafeCharacters = /^[A-Za-z0-9_-]+$/.test(id);
+    const isReasonableLength = id.length <= 255;
+    return hasOnlySafeCharacters && isReasonableLength;
+}
+
+
 router.get("/", async (req, res) => {
     const pagination = getPagination(req.query);
     if (pagination.error) {
@@ -131,6 +138,45 @@ router.get("/", async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({error: "Error fetching properties"});
+    }
+});
+
+router.get("/:id/openhouses", async (req, res) => {
+    const propertyId = req.params.id;
+    if (!validatePropertyId(propertyId)) {
+        return res.status(400).json({ error: "Invalid listing ID" });
+    }
+    try {
+        const [property] = await pool.query("SELECT L_ListingID FROM rets_property WHERE L_ListingID = ? LIMIT 1", [propertyId]);
+        if (property.length === 0) {
+            return res.status(404).json({ error: "Property not found" });
+        }
+        const [openHouses] = await pool.query(
+           `SELECT * 
+            FROM rets_openhouse 
+            WHERE L_ListingID = ? 
+            ORDER BY OpenHouseDate, OH_StartTime`, 
+           [propertyId]
+        );
+        res.json(openHouses);
+    } catch (error) {
+        res.status(500).json({ error: "Error fetching open houses" });
+    }
+});        
+
+router.get("/:id", async (req, res) => {
+    const propertyId = req.params.id;
+    if (!validatePropertyId(propertyId)) {
+        return res.status(400).json({ error: "Invalid listing ID" });
+    }
+    try {
+        const [property] = await pool.query("SELECT * FROM rets_property WHERE L_ListingID = ? LIMIT 1", [propertyId]);
+        if (property.length === 0) {
+            return res.status(404).json({ error: "Property not found" });
+        }
+        res.json(property[0]);
+    } catch (error) {
+        res.status(500).json({ error: "Error fetching property" });
     }
 });
 
