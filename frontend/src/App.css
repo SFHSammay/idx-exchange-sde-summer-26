@@ -1,0 +1,138 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f3efe7;
+  color: #2d2a26;
+  font-family: Arial, sans-serif;
+}
+
+.page-shell {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 40px 24px 56px;
+}
+
+.page-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #d8cfbf;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.1;
+  color: #27231f;
+  font-weight: 700;
+}
+
+.page-header p {
+  margin: 6px 0 0;
+  color: #756b5f;
+  font-size: 15px;
+}
+
+.property-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 22px;
+}
+
+.property-card {
+  overflow: hidden;
+  background: #fffaf2;
+  border: 1px solid #ded3c1;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(63, 50, 38, 0.06);
+  transition: box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.property-card:hover {
+  border-color: #b9a98f;
+  box-shadow: 0 12px 28px rgba(63, 50, 38, 0.13);
+}
+
+.property-photo {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: block;
+  object-fit: cover;
+  background: #e4dccf;
+}
+
+.property-photo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #766b5e;
+  font-weight: 700;
+}
+
+.property-card-body {
+  padding: 16px 16px 18px;
+}
+
+.property-card-body h2 {
+  margin: 0 0 10px;
+  font-size: 24px;
+  line-height: 1.1;
+  color: #25211d;
+}
+
+.property-address {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #36302a;
+}
+
+.property-location {
+  margin: 5px 0 14px;
+  color: #756b5f;
+  font-size: 14px;
+}
+
+.property-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  color: #3f4a3c;
+  font-size: 14px;
+}
+
+.property-stats span {
+  padding: 6px 8px;
+  background: #eef0e7;
+  border: 1px solid #d9ddcc;
+  border-radius: 6px;
+}
+
+.error-panel {
+  max-width: 520px;
+  margin: 120px auto 0;
+  padding: 26px;
+  text-align: center;
+  background: #fffaf2;
+  border: 1px solid #d4a373;
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(63, 50, 38, 0.1);
+}
+
+.error-panel h1 {
+  margin: 0 0 8px;
+  color: #7c2d12;
+  font-size: 24px;
+}
+
+.error-panel p {
+  margin: 0;
+  color: #8a4b24;
+}
