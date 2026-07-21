@@ -1,17 +1,27 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-function getFirstPhoto(photoJson) {
+function getPhotos(photoJson) {
   if (!photoJson) {
-    return null;
+    return [];
   }
+
   try {
     const photos = JSON.parse(photoJson);
-    if (Array.isArray(photos) && photos.length > 0 && photos[0]) {
-        return photos[0];
+
+    if (!Array.isArray(photos)) {
+      return [];
     }
-    return null;
+
+    return photos.filter((photo) => {
+      if (typeof photo !== "string") {
+        return false;
+      }
+
+      const value = photo.trim();
+      return value !== "" && value.toLowerCase() !== "ws";
+    });
   } catch (error) {
-    return null;
+    return [];
   }
 }
 
@@ -28,19 +38,34 @@ function formatPrice(price) {
 }
 
 function PropertyCard({ property }) {
-  const firstPhoto = getFirstPhoto(property.L_Photos);
+  const photos = useMemo(() => getPhotos(property.L_Photos), [property.L_Photos]);
+  const [photoIndex, setPhotoIndex] = useState(0);
   const [imageFailed, setImageFailed] = useState(false);
+  const currentPhoto = photos[photoIndex];
 
-  const shouldShowImage = firstPhoto && !imageFailed;
+  useEffect(() => {
+    setPhotoIndex(0);
+    setImageFailed(false);
+  }, [property.L_Photos]);
+
+  function handleImageError() {
+    if (photoIndex < photos.length - 1) {
+      setPhotoIndex(photoIndex + 1);
+    } else {
+      setImageFailed(true);
+    }
+  }
+
+  const shouldShowImage = currentPhoto && !imageFailed;
 
   return (
     <article className="property-card">
       {shouldShowImage ? (
         <img
           className="property-photo"
-          src={firstPhoto}
+          src={currentPhoto}
           alt={property.L_Address || "Property"}
-          onError={() => setImageFailed(true)}
+          onError={handleImageError}
         />
       ) : (
         <div className="property-photo property-photo-placeholder">
