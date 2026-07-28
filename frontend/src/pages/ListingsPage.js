@@ -1,32 +1,67 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fetchProperties } from "../api/client";
 import PropertyCard from "../components/PropertyCard";
+import PropertyFilters from "../components/PropertyFilters";
+
+function removeEmptyFilters(filters) {
+  const activeFilters = {};
+
+  for (const [key, value] of Object.entries(filters)) {
+    if (value.trim() !== "") {
+      activeFilters[key] = value.trim();
+    }
+  }
+
+  return activeFilters;
+}
 
 function ListingsPage() {
   const [properties, setProperties] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const latestRequestId = useRef(0);
 
-  useEffect(() => {
-    async function loadProperties() {
-      try {
-        setLoading(true);
-        setError("");
+  async function loadProperties(filters = {}) {
+    const requestId = latestRequestId.current + 1;
+    latestRequestId.current = requestId;
 
-        const data = await fetchProperties();
+    try {
+      setLoading(true);
+      setError("");
 
-        setProperties(data.results);
-        setTotal(data.total);
-      } catch (err) {
-        setError(err.message);
-      } finally {
+      const data = await fetchProperties(removeEmptyFilters(filters));
+
+      if (requestId !== latestRequestId.current) {
+        return;
+      }
+
+      setProperties(data.results);
+      setTotal(data.total);
+    } catch (err) {
+      if (requestId !== latestRequestId.current) {
+        return;
+      }
+
+      setError(err.message);
+    } finally {
+      if (requestId === latestRequestId.current) {
         setLoading(false);
       }
     }
+  }
 
+  useEffect(() => {
     loadProperties();
   }, []);
+
+  function handleSearch(filters) {
+    loadProperties(filters);
+  }
+
+  function handleClear() {
+    loadProperties();
+  }
 
   if (loading) {
     return <main className="page-shell">Loading properties...</main>;
@@ -52,11 +87,20 @@ function ListingsPage() {
         </p>
       </header>
 
-      <section className="property-grid">
-        {properties.map((property) => (
-          <PropertyCard key={property.L_ListingID} property={property} />
-        ))}
-      </section>
+      <PropertyFilters onSearch={handleSearch} onClear={handleClear} />
+
+      {properties.length === 0 ? (
+        <section className="empty-state">
+          <h2>No properties found</h2>
+          <p>Try changing or clearing your filters.</p>
+        </section>
+      ) : (
+        <section className="property-grid">
+          {properties.map((property) => (
+            <PropertyCard key={property.L_ListingID} property={property} />
+          ))}
+        </section>
+      )}
     </main>
   );
 }
